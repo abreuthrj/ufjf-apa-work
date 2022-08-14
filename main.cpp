@@ -148,6 +148,8 @@ matrix<bool> binMatrix(Graph &graph)
     for (int j = 0; j < graph.nodes.size(); j++)
       line.push_back(false);
 
+    line[graph.nodes[i]->index] = true;
+
     for (int j = 0; j < graph.nodes[i]->edges.size(); j++)
     {
       line[graph.nodes[i]->edges[j]->index] = true;
@@ -169,55 +171,78 @@ void printVec(std::vector<T> v)
   std::cout << std::endl;
 }
 
-// Retorna o vetor da matriz binária
+// Retorna o vetor da triangular superior
+// da matriz binária
 std::vector<bool> binVec(matrix<bool> m)
 {
   std::vector<bool> vec;
 
-  // std::cout << "matrix line size: " << m.size() << std::endl;
-  // std::cout << "matrix col size: " << m[0].size() << std::endl;
-
   for (int i = 0; i < m.size(); i++)
-    for (int j = i; j < m[i].size(); j++)
+    for (int j = i + 1; j < m[i].size(); j++)
       vec.push_back(m[i][j]);
-
-  // std::cout << "vec size: " << vec.size() << std::endl;
 
   return vec;
 }
 
-// Retorna o vetor compacto da matriz
+/**
+ * @brief Retorna o vetor compacto da matriz triangular superior
+ * contendo o índice ao qual se conecta, ou -1 caso não faça conexão
+ *
+ * @param m
+ * @return std::vector<int>
+ */
 std::vector<int> compactVec(matrix<bool> m)
 {
   std::vector<int> vec;
 
   for (int i = 0; i < m.size(); i++)
-    for (int j = i; j < m[i].size(); j++)
+    for (int j = i + 1; j < m[i].size(); j++)
       vec.push_back(m[i][j] == true ? j : -1);
 
   return vec;
 }
 
-// Retorna a matriz do vetor compacto
-matrix<bool> compactToMatrix(std::vector<int> vec, int nVertex)
+/**
+ * @brief  Retorna a matriz do vetor compacto
+ *
+ * Calcula o número de elementos da triangular inferior referente
+ * à matriz quadrada de índice anterior ao atual
+ *
+ * Subtrai o valor encontrado do número total de elementos até
+ * a linha anterior
+ *
+ * Soma com o indice da coluna subtraido do offset, dado que
+ * offset é o número de elementos na triangular inferior
+ * da linha
+ *
+ * Em sumo:
+ * b a a a
+ * b b x a
+ * b b b a
+ * b b b b
+ *
+ * Para encontrar {x}, soma-se o número de {a} da linha anterior
+ * com a coluna atual menos o número de {b} na linha atual.
+ *
+ * @param vec
+ * @param nodeCount
+ * @return matrix<bool>
+ */
+matrix<bool> compactToMatrix(std::vector<int> vec, int nodeCount)
 {
   matrix<bool> m;
-  std::vector<int> emps;
 
-  for (int i = 0; i < nVertex; i++)
+  for (int i = 0; i < nodeCount; i++)
   {
     std::vector<bool> line;
+
+    for (int j = 0; j < nodeCount; j++)
+      if (i == j)
+        line.push_back(true);
+      else
+        line.push_back(vec[i < j ? (i * nodeCount) - (i * (i + 1) / 2) + j - (i + 1) : (j * nodeCount) - (j * (j + 1) / 2) + i - (j + 1)] != -1);
+
     m.push_back(line);
-
-    emps.push_back(i == 0 ? 0 : emps[i - 1] + i);
-
-    for (int j = 0; j < nVertex; j++)
-    {
-      // std::cout << "DEBUG: "
-      //           << "; i:" << i << "; j:" << j << "; " << (i * nVertex + j) - emps[i] << "; " << (j * nVertex + i) - emps[j] << std::endl;
-      int value = i <= j ? vec[(i * nVertex + j) - emps[i]] : vec[(j * nVertex + i) - emps[j]];
-      m[i].push_back(i <= j ? value == j : value == i);
-    }
   }
 
   return m;
@@ -264,9 +289,9 @@ int main()
   printVec(cvec);
 
   // 5)
-  // matrix<bool> fromvec = compactToMatrix(cvec, graphSize);
-  // std::cout << "Binary matrix from compact vector:" << std::endl;
-  // printMatrix(fromvec);
+  matrix<bool> fromvec = compactToMatrix(cvec, graphSize);
+  std::cout << "Binary matrix from compact vector:" << std::endl;
+  printMatrix(fromvec);
 
   // 6)
   // for (int x = 0; x < 20; x++)
