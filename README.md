@@ -1,7 +1,7 @@
 # Trabalho de APA
 
 ## Alunos
-Thiago de Oliveira Abreu - 201965566C
+Thiago de Oliveira Abreu
 
 Matheus Reis
 
