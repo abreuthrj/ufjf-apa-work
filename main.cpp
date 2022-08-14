@@ -2,14 +2,18 @@
 #include "vector"
 #include "math.h"
 #include "chrono"
+#include "algorithm"
 
 template <typename T>
 using matrix = std::vector<std::vector<T>>;
 
+// A estrutura do nó serve para guardar e conectar
+// os nós  do grafo
 struct Node
 {
   std::vector<Node *> edges;
   int index;
+  bool opened = true;
 
   Node(int i)
   {
@@ -22,73 +26,106 @@ struct Node
   }
 };
 
-void generateVertexes(int graphSize, std::vector<Node> &graph)
+// A estrutura do grafo armazena todos os nós
+// e também os separa em lista de abertos e fechados
+struct Graph
 {
-  for (int i = 0; i < graphSize; i++)
+  std::vector<Node *> nodes;
+  std::vector<Node *> openedNodes;
+  std::vector<Node *> closedNodes;
+
+  Graph(int size)
   {
-    Node node(i);
-    graph.push_back(node);
-  }
-}
-
-void generateRandomGraph(int graphSize, std::vector<Node> &graph)
-{
-  std::vector<int> list;
-  int nEdges = 100 + round(rand() % (10 * graphSize - 100));
-  int connections = 0;
-
-  // std::cout << "nEdges: " << nEdges << std::endl
-  //           << "graphSize: " << graphSize << std::endl
-  //           << "Generating: ";
-
-  std::chrono::time_point<std::chrono::high_resolution_clock> coutTimer;
-  double couts = 0;
-
-  for (int i = 0; i < graphSize; i++)
-  {
-    // int n = round((nEdges / graphSize));
-    int n = 1 + round(rand() % (nEdges / graphSize));
-    coutTimer = std::chrono::high_resolution_clock::now();
-    // std::cout << (i == 0 ? "" : ", ") << n;
-    couts += std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - coutTimer).count();
-
-    list.clear();
-    for (int j = 0; j < n; j++)
+    for (int i = 0; i < size; i++)
     {
-      int index;
-    tryagain:
-      index = rand() % graphSize;
-
-      for (int x = 0; x < list.size(); x++)
-        if (list[x] == index)
-          goto tryagain;
-
-      list.push_back(index);
-
-      graph[i].connect(&graph[index]);
-      graph[index].connect(&graph[i]);
-
-      connections++;
-
-      if (connections >= nEdges)
-        break;
+      Node *newNode = new Node(i);
+      nodes.push_back(newNode);
+      openedNodes.push_back(newNode);
     }
   }
+
+  void connectNodes(Node *srcNode, Node *dstNode)
+  {
+    srcNode->connect(dstNode);
+    dstNode->connect(srcNode);
+  }
+
+  void closeNode(Node *dstNode)
+  {
+    int pos;
+
+    for (pos = 0; pos < openedNodes.size(); pos++)
+      if (openedNodes[pos]->index == dstNode->index)
+        break;
+
+    closedNodes.push_back(dstNode);
+    openedNodes.erase(openedNodes.begin() + pos);
+
+    dstNode->opened = false;
+  }
+};
+
+// Gera um grafo aleatório
+void generateRandomGraph(int graphSize, Graph &graph)
+{
+  int nEdges = (rand() % 10 + 1) * graphSize;
+  // std::cout << "Number of edges in the graph: " << nEdges << std::endl;
+
+  int spentConnections = 0;
+
+  std::vector<Node *> openedNodesClone;
+
+  for (int i = 0; i < graphSize; i++)
+  {
+    graph.closeNode(graph.nodes[i]);
+
+    // Gera um número de conexões de até nEdges, que permita
+    // que todos os vértices se conectem pelo menos 1 vez
+    int availableConnections = nEdges - spentConnections - graph.openedNodes.size();
+    availableConnections = std::max(availableConnections, 1);
+    // std::cout << "Number of available connections: " << availableConnections << std::endl;
+
+    int nConnections = rand() % availableConnections + 1;
+    nConnections = std::min(nConnections, (int)graph.openedNodes.size());
+    spentConnections += nConnections;
+    // std::cout << "Number of connections in node [" << i << "]: " << nConnections << std::endl;
+
+    // Clona a lista de nós abertos
+    openedNodesClone.clear();
+    for (int j = 0; j < graph.openedNodes.size(); j++)
+      openedNodesClone.push_back(graph.openedNodes[j]);
+
+    // Conecta o nó com todos os adjacentes de maneira
+    // aleatória
+    for (int j = 0; j < nConnections; j++)
+    {
+      int randomNodeIndex = rand() % openedNodesClone.size();
+      // std::cout << "Selected node [" << openedNodesClone[randomNodeIndex]->index << "] to connect with [" << i << "]" << std::endl;
+      graph.connectNodes(graph.nodes[i], openedNodesClone[randomNodeIndex]);
+
+      openedNodesClone.erase(openedNodesClone.begin() + randomNodeIndex);
+      // std::cout << "Removed from opened nodes clone, which now has size of: " << openedNodesClone.size() << std::endl;
+    }
+  }
+
+  // std::cout << "Number of connections made" << spentConnections << std::endl;
 }
 
-void printGraph(std::vector<Node> &graph)
+// Printa o grafo
+void printGraph(Graph &graph)
 {
-  for (int i = 0; i < graph.size(); i++)
+  for (int i = 0; i < graph.nodes.size(); i++)
   {
     std::cout << "Item [" << i << "]:" << std::endl;
 
     std::cout << "(";
-    for (int j = 0; j < graph[i].edges.size(); j++)
-      std::cout << (j == 0 ? "" : ",") << graph[i].edges[j]->index;
+    for (int j = 0; j < graph.nodes[i]->edges.size(); j++)
+      std::cout << (j == 0 ? "" : ",") << graph.nodes[i]->edges[j]->index;
     std::cout << ")" << std::endl;
   }
 }
 
+// Printa uma matriz qualquer
 void printMatrix(matrix<bool> m)
 {
   for (int i = 0; i < m.size(); i++)
@@ -99,20 +136,21 @@ void printMatrix(matrix<bool> m)
   }
 }
 
-matrix<bool> binMatrix(std::vector<Node> &graph)
+// Retorna a matriz binária do vetor
+matrix<bool> binMatrix(Graph &graph)
 {
   matrix<bool> m;
 
-  for (int i = 0; i < graph.size(); i++)
+  for (int i = 0; i < graph.nodes.size(); i++)
   {
     std::vector<bool> line;
 
-    for (int j = 0; j < graph.size(); j++)
+    for (int j = 0; j < graph.nodes.size(); j++)
       line.push_back(false);
 
-    for (int j = 0; j < graph[i].edges.size(); j++)
+    for (int j = 0; j < graph.nodes[i]->edges.size(); j++)
     {
-      line[graph[i].edges[j]->index] = true;
+      line[graph.nodes[i]->edges[j]->index] = true;
     }
 
     m.push_back(line);
@@ -121,6 +159,7 @@ matrix<bool> binMatrix(std::vector<Node> &graph)
   return m;
 }
 
+// Printa um vetor aleatório
 template <typename T>
 void printVec(std::vector<T> v)
 {
@@ -130,6 +169,7 @@ void printVec(std::vector<T> v)
   std::cout << std::endl;
 }
 
+// Retorna o vetor da matriz binária
 std::vector<bool> binVec(matrix<bool> m)
 {
   std::vector<bool> vec;
@@ -146,6 +186,7 @@ std::vector<bool> binVec(matrix<bool> m)
   return vec;
 }
 
+// Retorna o vetor compacto da matriz
 std::vector<int> compactVec(matrix<bool> m)
 {
   std::vector<int> vec;
@@ -157,6 +198,7 @@ std::vector<int> compactVec(matrix<bool> m)
   return vec;
 }
 
+// Retorna a matriz do vetor compacto
 matrix<bool> compactToMatrix(std::vector<int> vec, int nVertex)
 {
   matrix<bool> m;
@@ -181,6 +223,7 @@ matrix<bool> compactToMatrix(std::vector<int> vec, int nVertex)
   return m;
 }
 
+// Retorna o index computado da matriz em vetor
 int computeVecIndex(int i, int j, int size)
 {
   std::vector<int> jumps;
@@ -195,11 +238,12 @@ int main()
 {
   srand(time(NULL));
 
-  std::vector<Node> graph;
+  // std::vector<Node> graph;
   int graphSize = 100;
+  Graph graph(graphSize);
 
   // 1)
-  generateVertexes(graphSize, graph);
+  // generateVertexes(graphSize, graph);
   generateRandomGraph(graphSize, graph);
   // std::cout << "Graph:" << std::endl;
   // printGraph(graph);
@@ -211,8 +255,8 @@ int main()
 
   // 3)
   std::vector<bool> bvec = binVec(m);
-  // std::cout << "Binary vector from binary matrix:" << std::endl;
-  // printVec(bvec);
+  std::cout << "Binary vector from binary matrix:" << std::endl;
+  printVec(bvec);
 
   // 4)
   std::vector<int> cvec = compactVec(m);
@@ -220,19 +264,19 @@ int main()
   printVec(cvec);
 
   // 5)
-  matrix<bool> fromvec = compactToMatrix(cvec, graphSize);
+  // matrix<bool> fromvec = compactToMatrix(cvec, graphSize);
   // std::cout << "Binary matrix from compact vector:" << std::endl;
   // printMatrix(fromvec);
 
   // 6)
-  for (int x = 0; x < 20; x++)
-  {
-    int i = 20, j = x;
-    int vecIndex = computeVecIndex(i, j, graphSize);
-    // std::cout << "Compact vector on matrix[" << i << "][" << j << "]: " << std::endl
-    //           << "Mapped index: " << vecIndex << std::endl
-    //           << "Vector value: " << cvec[vecIndex] << std::endl;
-  }
+  // for (int x = 0; x < 20; x++)
+  // {
+  //   int i = 20, j = x;
+  //   int vecIndex = computeVecIndex(i, j, graphSize);
+  // std::cout << "Compact vector on matrix[" << i << "][" << j << "]: " << std::endl
+  //           << "Mapped index: " << vecIndex << std::endl
+  //           << "Vector value: " << cvec[vecIndex] << std::endl;
+  // }
 
   // 7)
 
