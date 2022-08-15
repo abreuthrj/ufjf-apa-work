@@ -10,7 +10,7 @@ struct Pair
   int i;
   int j;
 
-  pair()
+  Pair()
   {
     i = 0;
     j = 0;
@@ -28,7 +28,7 @@ struct Matrix
     return matrix[i][j];
   }
 
-  T get(pair &p)
+  T get(Pair &p)
   {
     return matrix[p.i][p.j];
   }
@@ -187,7 +187,7 @@ void printMatrix(Matrix<bool> m)
  */
 Matrix<bool> binMatrix(Graph &graph)
 {
-  matrix<bool> m;
+  Matrix<bool> m;
 
   for (int i = 0; i < graph.nodes.size(); i++)
   {
@@ -300,7 +300,7 @@ int computeVecIndex(int i, int j, int size, bool pa = true)
  */
 Pair computeMatrixPair(int i, int size, bool pa = true)
 {
-  pair matrixPair;
+  Pair matrixPair;
 
   int offset = i + 1;
 
@@ -351,7 +351,7 @@ Pair computeMatrixPair(int i, int size, bool pa = true)
  */
 Matrix<bool> compactToMatrix(std::vector<int> vec, int nodeCount)
 {
-  matrix<bool> m;
+  Matrix<bool> m;
 
   for (int i = 0; i < nodeCount; i++)
   {
