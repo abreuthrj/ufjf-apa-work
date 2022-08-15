@@ -1,13 +1,25 @@
 # Trabalho de APA
 
+1. [Alunos](#alunos)
+   - Thiago Abreu
+   - Matheus Reis
+2. [Estruturas de Dados](#estruturas-de-dados)
+   - Pair
+   - Matrix
+   - Node
+   - Graph
+3. [Funções](#funções)
+4. [Compilação e Execução](#compilação-e-execução)
+
+
 ## Alunos
-Thiago de Oliveira Abreu
+Thiago Abreu
 
 Matheus Reis
 
 ## Estruturas de Dados
 
-**Pair**
+**Par**
 
 A estrutura do par serve apenas como auxiliar para guardar os indices i e j de uma matriz.
 
@@ -20,7 +32,7 @@ struct Pair {
 }
 ```
 
-**Matrix**
+**Matriz**
 
 A estrutura da matriz serve para guardar um vetor de vetores, fornecendo algumas funções auxiliares.
 
@@ -37,7 +49,7 @@ struct Matrix {
 }
 ```
 
-**Node**
+**Nó**
 
 A estrutura do nó guarda o seu index, se está fechado ou aberto e seus adjacentes
 
@@ -71,10 +83,7 @@ struct Graph
 
 ## Funções
 
-**generateRandomGraph** –
-
-Gera as adjacencias de um grafo, calculando primeiramente a quantidade total de ligações que o grafo terá e, com base nisso, calculando para cada nó, um número aleatório de ligações, respeitando o limite para que cada nó possua pelo menos uma ligação.
-
+**generateRandomGraph** – Gera as adjacencias de um grafo, calculando primeiramente a quantidade total de ligações que o grafo terá e, com base nisso, calculando para cada nó, um número aleatório de ligações, respeitando o limite para que cada nó possua pelo menos uma ligação.
 
 **binMatrix** – Dado o grafo, transforma em uma matriz adjacência binária.
 
