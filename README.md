@@ -7,6 +7,36 @@ Matheus Reis
 
 ## Estruturas de Dados
 
+**Pair**
+
+A estrutura do par serve apenas como auxiliar para guardar os indices i e j de uma matriz.
+
+```
+struct Pair {
+  int i;
+  int j;
+
+  Pair();
+}
+```
+
+**Matrix**
+
+A estrutura da matriz serve para guardar um vetor de vetores, fornecendo algumas funções auxiliares.
+
+```
+struct Matrix {
+  std::vector<std::vector<T>> matrix;
+
+  T get(int i, int j);
+  T get(Pair &p);
+  int lines();
+  int cols();
+  int size();
+  void push(std::vector<T> &line);
+}
+```
+
 **Node**
 
 A estrutura do nó guarda o seu index, se está fechado ou aberto e seus adjacentes
@@ -55,6 +85,8 @@ Gera as adjacencias de um grafo, calculando primeiramente a quantidade total de 
 **compactToMatrix** – Dado o vetor compacto, transforma em uma matriz adjacência binária.
 
 **computeVecIndex** – Computa o index do vetor, dado i e j da matriz adjacência binária.
+
+**computeMatrixPair** – Computa o par i, j da matriz, dado índice i do vetor compacto.
 
 **printGraph** – Printa os nós e suas conexões.
 
