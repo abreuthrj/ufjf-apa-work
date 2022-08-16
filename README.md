@@ -3,19 +3,29 @@
 1. [Alunos](#alunos)
    - Thiago Abreu
    - Matheus Reis
-2. [Estruturas de Dados](#estruturas-de-dados)
+2. [Sistema de Arquivos](#sistema-de-arquivos)
+   - functions.cpp
+   - structs.cpp
+   - main.cpp
+3. [Estruturas de Dados](#estruturas-de-dados)
    - Pair
    - Matrix
    - Node
    - Graph
-3. [Funções](#funções)
-4. [Compilação e Execução](#compilação-e-execução)
+4. [Funções](#funções)
+5. [Compilação e Execução](#compilação-e-execução)
 
 
 ## Alunos
 Thiago Abreu
 
 Matheus Reis
+
+## Sistema de arquivos
+
+`functions.cpp` – Contém todas as funções utilizadas no projeto.
+`structs.cpp` – Contém todas as estruturas de dados necessárias.
+`main.cpp` – Contém apenas a main para rodar todas as questões do trabalho.
 
 ## Estruturas de Dados
 
@@ -91,11 +101,17 @@ struct Graph
 
 **compactVec** – Dada a matriz adjacência binária, transforma em um vetor compacto com endereçamento indireto.
 
-**compactToMatrix** – Dado o vetor compacto, transforma em uma matriz adjacência binária.
+**compactToMatrix** – Dado o vetor compacto, transforma em uma matriz adjacência.
+
+**compactToBinMatrix** – Dado o vetor compacto, transforma em uma matriz adjacência binária.
 
 **computeVecIndex** – Computa o index do vetor, dado i e j da matriz adjacência binária.
 
 **computeMatrixPair** – Computa o par i, j da matriz, dado índice i do vetor compacto.
+
+**sumMatrix** – Retorna a matriz resultante da soma das representações vetoriais compacta das matrizes.
+
+**mulMatrix** – Retorna a matriz resultante da multiplicação das representações vetoriais compacta das matrizes.
 
 **printGraph** – Printa os nós e suas conexões.
 
