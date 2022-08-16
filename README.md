@@ -24,7 +24,9 @@ Matheus Reis
 ## Sistema de arquivos
 
 `functions.cpp` – Contém todas as funções utilizadas no projeto.
+
 `structs.cpp` – Contém todas as estruturas de dados necessárias.
+
 `main.cpp` – Contém apenas a main para rodar todas as questões do trabalho.
 
 ## Estruturas de Dados
